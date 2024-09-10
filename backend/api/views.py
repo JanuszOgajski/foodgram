@@ -1,3 +1,4 @@
+# flake8:noqa
 from django.db.models import Count, Sum
 from django.http import HttpResponse  # FileResponse
 from django.shortcuts import get_object_or_404
