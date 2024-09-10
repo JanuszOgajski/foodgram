@@ -1,5 +1,3 @@
-from io import BytesIO
-
 from django.db.models import Count, Sum
 from django.http import HttpResponse  # FileResponse
 from django.shortcuts import get_object_or_404
@@ -13,8 +11,7 @@ from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
-from users.models import Subscription, User
-from .download_shopping_cart import download_txt
+from users.models import User
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import LimitPagination
 from .permissions import IsAdminOrAuthor
@@ -126,7 +123,7 @@ class UserViewSet(viewsets.ModelViewSet):  # (DjoserUserViewSet)
     @subscribe_to.mapping.delete
     def unsubscribe(self, request, id):
         """Отписаться от пользователя."""
-        user = request.user
+        # user = request.user
         author = get_object_or_404(User, pk=id)
         # deleted_count, _ = Subscription.objects.filter(
         #     user=user, author=author
