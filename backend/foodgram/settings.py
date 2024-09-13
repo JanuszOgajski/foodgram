@@ -16,7 +16,7 @@ DEBUG = os.getenv("MODE_DEBUG", 'False').lower() != 'false'
 # ALLOWED_HOSTS = ['*']
 
 ALLOWED_HOSTS = os.getenv(
-    'ALLOWED_HOSTS', default='158.160.95.26, 127.0.0.1, localhost, taski.3utilities.com').split(', ')
+    'ALLOWED_HOSTS', default='').split(', ')
 
 
 INSTALLED_APPS = [
