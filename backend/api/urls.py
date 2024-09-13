@@ -1,7 +1,9 @@
+# flake8:noqa
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import IngredientViewSet, RecipeViewSet, TagViewSet, UserViewSet
+from .views import IngredientViewSet, RecipeViewSet, TagViewSet
+from users.views import LoginView, LogoutView, UserViewSet
 
 router_v1 = DefaultRouter()
 router_v1.register(
@@ -19,6 +21,8 @@ router_v1.register(
 
 urlpatterns = [
     path('', include(router_v1.urls)),
+    path('auth/token/login/', LoginView.as_view(), name='login'),
+    path('auth/token/logout/', LogoutView.as_view(), name='logout'),
     path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    # path('auth/', include('djoser.urls.authtoken')),
 ]

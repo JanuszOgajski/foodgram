@@ -1,18 +1,22 @@
 # flake8:noqa
 import json
 import os
+from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from recipes.models import Ingredient, Tag
 
 # Путь до директории с json-файлами
-JSON_PATH = os.path.join('/backend/data')  # os.path.join('/app/data')
+# os.path.join('/app/data')  os.path.join(
+# Path(__file__).resolve().parent.parent.parent.parent, 'data')
+JSON_PATH = os.path.join(
+    Path(__file__).resolve().parent.parent.parent.parent, 'data')
 
 # Словарь соответствий модели и json-файла
 MODEL_FILE_MATCHING = {
     Tag: 'tags.json',
-    Ingredient: 'ingredients.json'
+    Ingredient: 'ingredients.json',
 }
 
 

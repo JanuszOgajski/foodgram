@@ -1,141 +1,23 @@
 # flake8:noqa
-from django.db.models import Count, Sum
+from django.db.models import Sum
 from django.http import HttpResponse  # FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 # from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
-from users.models import User
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+                            UserRecipeModel, Recipe, ShoppingCart, Tag)
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import LimitPagination
 from .permissions import IsAdminOrAuthor
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipeReceiveSerializer,
-                          ShoppingCartSerializer, SubscribeToSerializer,
-                          SubscriptionReceiveSerializer, TagSerializer,
-                          UserAvatarSerializer, UserSerializer)
-
-
-class UserViewSet(viewsets.ModelViewSet):  # (DjoserUserViewSet)
-    """Вьюсет для юзера."""
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
-    pagination_class = LimitPagination
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('username',)
-
-    @action(
-        methods=('GET',),
-        permission_classes=(IsAuthenticated,),
-        detail=False
-    )
-    def me(self, request):
-        """Возвращает информацию о профиле текущего пользователя."""
-        serializer = UserSerializer(
-            request.user,
-            context={'request': request}
-        )
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    @action(
-        methods=('PUT',),
-        permission_classes=(IsAuthenticated,),
-        url_path='me/avatar',
-        detail=False
-    )
-    def update_avatar(self, request):
-        """Обновляет аватар пользователя."""
-        user = self.request.user
-
-        serializer = UserAvatarSerializer(
-            user,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data)
-
-    @update_avatar.mapping.delete
-    def delete_avatar(self, request):
-        """Удаляет аватар пользователя."""
-        user = request.user
-
-        if user.avatar:
-            user.avatar.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(
-        detail=False,
-        pagination_class=LimitPagination,
-        permission_classes=(IsAuthenticated,),
-    )
-    def subscriptions(self, request):
-        """Возвращает все подписки пользователя."""
-        # queryset = User.objects.filter(
-        #     subscribed_to__user=request.user
-        # ).annotate(recipes_count=Count('recipes')).order_by('username')
-        queryset = User.subscribed_to.all(
-        ).annotate(recipes_count=Count('recipes')).order_by('username')
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = SubscriptionReceiveSerializer(
-                page, many=True, context={'request': request}
-            )
-            return self.get_paginated_response(serializer.data)
-
-        serializer = SubscriptionReceiveSerializer(
-            queryset, many=True, context={'request': request}
-        )
-        return Response(serializer.data)
-
-    @action(
-        detail=True,
-        methods=('POST',),
-        permission_classes=(IsAuthenticated,),
-        pagination_class=LimitPagination,
-        url_path='subscribe',
-    )
-    def subscribe_to(self, request, id):
-        """Подписка на пользователя."""
-        user = request.user
-        author = get_object_or_404(User, pk=id)
-        data = {'author': author.id, 'user': user.id}
-        serializer = SubscribeToSerializer(
-            data=data,
-            context=self.get_serializer_context()
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-
-    @subscribe_to.mapping.delete
-    def unsubscribe(self, request, id):
-        """Отписаться от пользователя."""
-        # user = request.user
-        author = get_object_or_404(User, pk=id)
-        # deleted_count, _ = Subscription.objects.filter(
-        #     user=user, author=author
-        # ).delete()
-        deleted_count, _ = author.subscribed_to.all().delete()
-
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-            if deleted_count else status.HTTP_400_BAD_REQUEST,
-            data={'errors': 'Подписка не найдена.'}
-        )
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -279,14 +161,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def delete_recipe(self, request, pk, model):
         """Удаление рецепта из избранного или списка покупок."""
         user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
 
-        deleted_count, _ = model.objects.filter(
-            recipe_id=pk, user=user
-        ).delete()
-
-        if deleted_count:
+        # deleted_count, _ = model.objects.filter(
+        #     recipe_id=pk, user=user
+        # ).delete()
+        bad_recipe = model.objects.filter(
+            user=user,
+            recipe=recipe
+        ).first()  # .first()
+        if bad_recipe:
+            bad_recipe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
         return Response(
             {'errors': 'Рецепт не найден в списке.'},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST  # HTTP_400_BAD_REQUEST
         )
