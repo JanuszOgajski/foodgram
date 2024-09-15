@@ -1,9 +1,7 @@
-# flake8:noqa
 from django.db.models import Sum
-from django.http import HttpResponse  # FileResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-# from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
@@ -11,7 +9,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
-                            UserRecipeModel, Recipe, ShoppingCart, Tag)
+                            Recipe, ShoppingCart, Tag)
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import LimitPagination
 from .permissions import IsAdminOrAuthor
@@ -127,20 +125,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ] = 'attachment; filename="shopping_list.txt"'
         return response
 
-        # content = download_txt(ingredients, user=user.username)
-
-        # file_content = BytesIO(content.encode('utf-8'))
-
-        # response = FileResponse(
-        #     file_content,
-        #     content_type='text/plain; charset=utf-8'
-        # )
-        # response['Content-Disposition'] = (
-        #     f'attachment; filename="shopping_cart_{user.username}.txt"'
-        # )
-
-        # return response
-
     def add_recipe(self, request, pk, serializer_class):
         """Добавление рецепта в избранное или в список покупок."""
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -162,19 +146,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Удаление рецепта из избранного или списка покупок."""
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
-
-        # deleted_count, _ = model.objects.filter(
-        #     recipe_id=pk, user=user
-        # ).delete()
-        bad_recipe = model.objects.filter(
-            user=user,
-            recipe=recipe
-        ).first()  # .first()
-        if bad_recipe:
+        bad_recipe = user.shoppingcarts.filter(recipe=recipe)
+        if model == Favorite:
+            bad_recipe = user.favorites.filter(recipe=recipe)
+        if bad_recipe.exists():
             bad_recipe.delete()
+            print(bad_recipe)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(
             {'errors': 'Рецепт не найден в списке.'},
-            status=status.HTTP_400_BAD_REQUEST  # HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST
         )

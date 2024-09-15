@@ -1,4 +1,3 @@
-# flake8:noqa
 from django.core.validators import (FileExtensionValidator, MaxValueValidator,
                                     MinValueValidator)
 from django.db import models
@@ -20,7 +19,8 @@ class Ingredient(models.Model):
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
-        max_length=max(len(choice) for choice, _ in MEASUREMENT_UNIT_CHOICES),
+        # max(len(choice) for choice, _ in MEASUREMENT_UNIT_CHOICES),
+        max_length=25,
         choices=MEASUREMENT_UNIT_CHOICES,
         verbose_name='Единица измерения',
     )

@@ -8,7 +8,7 @@ MAX_RECIPE_NAME_LEN = 128
 MIN_COOKING_TIME = 1
 
 # Максимальное время приготовления:
-MAX_COOKING_TIME = 32767
+MAX_COOKING_TIME = 32000
 
 # Ограничение на длину названия тега:
 MAX_TAG_NAME_LEN = 64
@@ -23,7 +23,7 @@ MAX_INGREDIENT_NAME_LEN = 128
 MIN_INGREDIENTS_AMOUNT = 1
 
 # Максимальное кол-во ингредиентов:
-MAX_INGREDIENTS_AMOUNT = 32767
+MAX_INGREDIENTS_AMOUNT = 32000
 
 # Кол-во дополнительных пустых строк в админке:
 EXTRA = 0

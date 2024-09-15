@@ -15,8 +15,7 @@ DEBUG = os.getenv("MODE_DEBUG", 'False').lower() != 'false'
 
 # ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = os.getenv(
-    'ALLOWED_HOSTS', default='').split(', ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='').split(', ')
 
 
 INSTALLED_APPS = [
@@ -65,7 +64,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'foodgram'),
@@ -74,15 +73,15 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST', ''),
         'PORT': os.getenv('DB_PORT', 5432)
     }
-}
+}"""
 
 
-"""DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-}"""
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [

@@ -1,17 +1,14 @@
-# flake8:noqa
 import base64
 
 from django.core.files.base import ContentFile
-# from django.db import transaction
-# from djoser.serializers import UserSerializer as DjoserUserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.constants import MAX_INGREDIENTS_AMOUNT, MIN_INGREDIENTS_AMOUNT
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
-from users.models import Subscription, User
-from users.serializers import UserSerializer, RecipeShortSerializer
+from recipes.constants import (MAX_COOKING_TIME, MAX_INGREDIENTS_AMOUNT,
+                               MIN_COOKING_TIME, MIN_INGREDIENTS_AMOUNT)
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+                            Recipe, ShoppingCart, Tag)
+from users.serializers import RecipeShortSerializer, UserSerializer
 
 
 class Base64ImageField(serializers.ImageField):
@@ -112,14 +109,14 @@ class RecipeReceiveSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
+        request = self.context['request']
         return (
             request.user.is_authenticated
             and obj.favorites.filter(user=request.user).exists()
         )
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
+        request = self.context['request']
         return (
             request.user.is_authenticated
             and obj.shoppingcarts.filter(user=request.user).exists()
@@ -142,6 +139,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         allow_null=False,
         allow_empty_file=False,
     )
+    cooking_time = serializers.IntegerField(
+        max_value=MAX_COOKING_TIME,
+        min_value=MIN_COOKING_TIME,
+    )
 
     class Meta:
         model = Recipe
@@ -157,7 +158,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return RecipeReceiveSerializer(instance, context=self.context).data
 
-    # @transaction.atomic
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -168,7 +168,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         return recipe
 
-    # @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients', [])
         tags = validated_data.pop('tags', [])
@@ -179,7 +178,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-    # @transaction.atomic
     def add_ingredient(self, ingredients, recipe):
         IngredientInRecipe.objects.bulk_create(
             [
@@ -195,11 +193,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = data.get('ingredients', [])
-        tags = data.get('tags', [])
 
         ingredients_ids = [ingredient['id'] for ingredient in ingredients]
         tags_ids = self.initial_data.get('tags')
-        # ingredients_ids = self.initial_data.get('ingredients')
 
         if not tags_ids or not ingredients:
             raise serializers.ValidationError({'Недостаточно данных.'})
@@ -229,31 +225,25 @@ class ShoppingCartFavoriteSerializer(serializers.ModelSerializer):
             context=self.context
         ).data
 
-    def validate(self, attrs):
-        model = self.Meta.model
-        user = attrs['user']
-        recipe = attrs['recipe']
-
-        if model.objects.filter(user=user, recipe=recipe).exists():
-            raise serializers.ValidationError({
-                'non_field_errors': [
-                    f'{model._meta.verbose_name} с таким '
-                    'пользователем и рецептом уже существует.'
-                ]
-            })
-
-        return attrs
-
     def validate_recipe(self, value):
         if not value:
             raise serializers.ValidationError(
                 'Рецепта не существует.'
             )
         return value
+    # уникальность теперь проверяется в валидаторах ниже
 
 
 class ShoppingCartSerializer(ShoppingCartFavoriteSerializer):
     """Сериализатор для списка покупок."""
+
+    validators = [
+        UniqueTogetherValidator(
+            queryset=ShoppingCart.objects.all(),
+            fields=('user', 'recipe'),
+            message='Список с пользователем и рецептом уже существует'
+        )
+    ]
 
     class Meta(ShoppingCartFavoriteSerializer.Meta):
         model = ShoppingCart
@@ -261,6 +251,13 @@ class ShoppingCartSerializer(ShoppingCartFavoriteSerializer):
 
 class FavoriteSerializer(ShoppingCartFavoriteSerializer):
     """Сериализатор для избранного."""
+    validators = [
+        UniqueTogetherValidator(
+            queryset=Favorite.objects.all(),
+            fields=('user', 'recipe'),
+            message='Список с пользователем и рецептом уже существует'
+        )
+    ]
 
     class Meta(ShoppingCartFavoriteSerializer.Meta):
         model = Favorite
