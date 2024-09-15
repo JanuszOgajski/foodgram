@@ -1,8 +1,6 @@
-# flake8:noqa
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
-# from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import filters, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -45,7 +43,7 @@ class LogoutView(ObtainAuthToken):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserViewSet(viewsets.ModelViewSet):  # (DjoserUserViewSet)
+class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для юзера."""
 
     queryset = User.objects.all()
@@ -127,8 +125,6 @@ class UserViewSet(viewsets.ModelViewSet):  # (DjoserUserViewSet)
         queryset = User.objects.filter(
             subscribed_to__user=request.user
         ).annotate(recipes_count=Count('recipes')).order_by('username')
-        # queryset = User.subscribed_to.all(
-        # ).annotate(recipes_count=Count('recipes')).order_by('username')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -168,17 +164,6 @@ class UserViewSet(viewsets.ModelViewSet):  # (DjoserUserViewSet)
         """Отписаться от пользователя."""
         user = request.user
         author = get_object_or_404(User, pk=pk)
-        # deleted_count, _ = Subscription.objects.filter(
-        #     user=user, author=author
-        # ).delete()
-        # # deleted_count, _ = author.subscribed_to.all().delete()
-        """deleted_count, _ = author.subscribed_to.all().delete()
-
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-            if deleted_count else status.HTTP_400_BAD_REQUEST,
-            data={'errors': 'Подписка не найдена.'}
-        )"""
         follow = Subscription.objects.filter(
             user=user,
             author=author

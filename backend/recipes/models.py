@@ -19,13 +19,13 @@ class Ingredient(models.Model):
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
-        # max(len(choice) for choice, _ in MEASUREMENT_UNIT_CHOICES),
-        max_length=25,
+        max_length=max(len(choice) for choice, _ in MEASUREMENT_UNIT_CHOICES),
         choices=MEASUREMENT_UNIT_CHOICES,
         verbose_name='Единица измерения',
     )
 
     class Meta:
+        ordering = ('name',)
         constraints = (
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),

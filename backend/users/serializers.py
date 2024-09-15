@@ -1,16 +1,10 @@
-# flake8:noqa
 import base64
 
 from django.core.files.base import ContentFile
-from django.db import IntegrityError
-# from django.db import transaction
-# from djoser.serializers import UserSerializer as DjoserUserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.constants import MAX_INGREDIENTS_AMOUNT, MIN_INGREDIENTS_AMOUNT
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import Recipe
 from users.models import Subscription, User
 
 
@@ -25,7 +19,7 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
-class UserCreateSerializer(serializers.ModelSerializer):  # DjoserUserSerializer
+class UserCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
     password = serializers.CharField(write_only=True)
 
@@ -41,18 +35,6 @@ class UserCreateSerializer(serializers.ModelSerializer):  # DjoserUserSerializer
         )
         extra_kwargs = {'password': {'write_only': True}}
 
-    """def validate(self, data):
-        try:
-            User.objects.get_or_create(
-                username=data.get('username'),
-                email=data.get('email')
-            )
-        except IntegrityError:
-            raise serializers.ValidationError(
-                'Такой пользователь уже существует'
-            )
-        return data"""
-
     def create(self, validated_data):
         user = User(
             email=validated_data["email"],
@@ -65,18 +47,12 @@ class UserCreateSerializer(serializers.ModelSerializer):  # DjoserUserSerializer
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):  # DjoserUserSerializer
+class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
 
     is_subscribed = serializers.SerializerMethodField()
-    # avatar = Base64ImageField()
 
-    class Meta:  # (DjoserUserSerializer.Meta)
-        # fields = DjoserUserSerializer.Meta.fields + (
-        #     'is_subscribed',
-        #     'avatar'
-        # )
-        # ref_name = 'UniqueUserSerializer'
+    class Meta:
         model = User
         fields = (
             'email',
@@ -86,7 +62,6 @@ class UserSerializer(serializers.ModelSerializer):  # DjoserUserSerializer
             'last_name',
             'is_subscribed',
             'avatar',
-            # 'password',
         )
         read_only_fields = ('id', 'is_subscribed', 'avatar')
 
@@ -95,7 +70,6 @@ class UserSerializer(serializers.ModelSerializer):  # DjoserUserSerializer
         return (
             user.is_authenticated
             and Subscription.objects.filter(user=user, author=obj).exists()
-            # and User.subscribed_to.all().exists()
         )
 
 
