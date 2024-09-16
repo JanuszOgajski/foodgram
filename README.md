@@ -1,5 +1,5 @@
-Проект доступен для ознакомления ---> [`Здесь`](https://foodgram-practicum.duckdns.org/)\
-Документация API ---> [`Здесь`](https://foodgram-practicum.duckdns.org/api/docs/)
+Проект доступен для ознакомления ---> [`Здесь`](https://taski.3utilities.com/)\
+Документация API ---> [`Здесь`](https://taski.3utilities.com/api/docs/)
 
 ## Как развернуть проект?
 
@@ -12,7 +12,7 @@
 ### Установка
 1. Склонируйте репозиторий и перейдите в него:
 ```console
-git clone https://github.com/linkoffee/foodgram.git
+git clone https://github.com/JanuszOgajski/foodgram.git
 ```
 ```console
 cd foodgram
