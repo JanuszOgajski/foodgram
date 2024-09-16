@@ -167,7 +167,7 @@ class UserViewSet(viewsets.ModelViewSet):
         follow = Subscription.objects.filter(
             user=user,
             author=author
-        ).first()  # .first()
+        ).first()
         if follow:
             follow.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)

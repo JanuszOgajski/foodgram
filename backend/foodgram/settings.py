@@ -9,11 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = str(os.environ.get('DJANGO_SECRET_KEY', 'secret'))
 
-DEBUG = os.getenv("MODE_DEBUG", 'False').lower() != 'false'
-
-# DEBUG = True
-
-# ALLOWED_HOSTS = ['*']
+DEBUG = os.getenv('MODE_DEBUG', 'False').lower() != 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='').split(', ')
 
@@ -110,7 +106,6 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-# BASE_DIR / 'static'  # os.path.join(BASE_DIR, 'static')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
@@ -138,7 +133,7 @@ DJOSER = {
     'SERIALIZERS': {
         'current_user': 'users.serializers.UserSerializer',
         'user': 'users.serializers.UserSerializer',
-        'user_create': 'users.serializers.UserCreateSerializer',  # добавил после тестов
+        'user_create': 'users.serializers.UserCreateSerializer',
     },
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.AllowAny']
@@ -146,4 +141,4 @@ DJOSER = {
     'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
 }
 
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = 'users.User'

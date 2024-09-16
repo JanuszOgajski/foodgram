@@ -8,8 +8,6 @@ from django.core.management.base import BaseCommand
 from recipes.models import Ingredient, Tag
 
 # Путь до директории с json-файлами
-# os.path.join('/app/data')  os.path.join(
-# Path(__file__).resolve().parent.parent.parent.parent, 'data')
 JSON_PATH = os.path.join(
     Path(__file__).resolve().parent.parent.parent.parent, 'data')
 

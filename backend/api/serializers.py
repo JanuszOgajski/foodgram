@@ -231,7 +231,6 @@ class ShoppingCartFavoriteSerializer(serializers.ModelSerializer):
                 'Рецепта не существует.'
             )
         return value
-    # уникальность теперь проверяется в валидаторах ниже
 
 
 class ShoppingCartSerializer(ShoppingCartFavoriteSerializer):

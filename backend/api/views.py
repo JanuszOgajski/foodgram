@@ -146,12 +146,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Удаление рецепта из избранного или списка покупок."""
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
-        bad_recipe = user.shoppingcarts.filter(recipe=recipe)
+        recipe_in_cart = user.shoppingcarts.filter(recipe=recipe)
         if model == Favorite:
-            bad_recipe = user.favorites.filter(recipe=recipe)
-        if bad_recipe.exists():
-            bad_recipe.delete()
-            print(bad_recipe)
+            recipe_in_cart = user.favorites.filter(recipe=recipe)
+        if recipe_in_cart.exists():
+            recipe_in_cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(
