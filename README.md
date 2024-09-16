@@ -1,5 +1,4 @@
 Проект доступен для ознакомления ---> [`Здесь`](https://taski.3utilities.com/)\
-Документация API ---> [`Здесь`](https://taski.3utilities.com/api/docs/)
 
 ## Как развернуть проект?
 

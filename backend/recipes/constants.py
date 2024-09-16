@@ -32,17 +32,23 @@ EXTRA = 0
 MIN_NUM = 1
 
 # Единицы измерения ингредиентов
-GRAMS = 'g'
-KILOGRAMS = 'kg'
-MILLILITERS = 'ml'
+GRAMS = 'г'
+KILOGRAMS = 'кг'
+MILLILITERS = 'мл'
 LITERS = 'L'
-SPOONFULLS = 'sps'
-PIECES = 'pcs'
+SPOONFULLS = 'ст. л.'
+TEASPOONS = 'ч. л.'
+PIECES = 'шт.'
+CHUNK = 'кусок'
+DROP = 'капля'
 MEASUREMENT_UNIT_CHOICES = (
     (GRAMS, GRAMS),
     (KILOGRAMS, KILOGRAMS),
     (MILLILITERS, MILLILITERS),
     (LITERS, LITERS),
     (SPOONFULLS, SPOONFULLS),
+    (TEASPOONS, TEASPOONS),
+    (CHUNK, CHUNK),
+    (DROP, DROP),
     (PIECES, PIECES),
 )
